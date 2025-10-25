@@ -7,32 +7,55 @@ ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
 
+current_file_path = None
 app = ctk.CTk()
 app.title("Notes App")
 app.geometry("500x500")
 app.resizable(False, False)
-
 def new_note():
+    # Make sure you declare it as global here
+    global current_file_path 
+    
     text_area.delete("1.0", "end")
+    
+    # --- FIX: Reset the current file path ---
+    current_file_path = None
+    
     app.title("Untitled - file name")
 
 def save_note():
+    global current_file_path
     note_content = text_area.get("1.0", "end-1c")
+    
+    # 1. Check if content is empty and return early if so
     if not note_content.strip():
         messagebox.showwarning("Empty Note", "Write something before saving")
         return
 
-    file_path = filedialog.asksaveasfilename(
-        defaultextension=".txt",
-        filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
-    )
-    if file_path:
-        with open(file_path, "w", encoding="utf-8") as f:
+    # 2. Determine file path (Save vs. Save As)
+    if current_file_path:
+        # If path exists: Use the existing path (Save)
+        file_path_to_save = current_file_path
+    else:
+        # If no path exists: Prompt the user for a new file (Save As)
+        file_path_to_save = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
+        )
+    
+    # 3. Final Save Logic (if a path was chosen/exists)
+    if file_path_to_save:
+        with open(file_path_to_save, "w", encoding="utf-8") as f:
             f.write(note_content)
-        app.title(f"{os.path.basename(file_path)} - file name")
-
-
+        
+        # Ensure current_file_path is set/updated for the next save
+        current_file_path = file_path_to_save 
+        
+        app.title(f"{os.path.basename(file_path_to_save)} - file name")
 def open_note():
+    # Make sure you declare it as global here
+    global current_file_path 
+    
     file_path = filedialog.askopenfilename(
         filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
     )
@@ -40,6 +63,10 @@ def open_note():
         with open(file_path, "r", encoding="utf-8") as f:
             text_area.delete("1.0", "end")
             text_area.insert("1.0", f.read())
+        
+        # --- FIX: Store the path of the opened file ---
+        current_file_path = file_path 
+        
         app.title(f"{os.path.basename(file_path)} - file name")
 
 def clear_note():
