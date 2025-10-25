@@ -10,7 +10,6 @@ ctk.set_default_color_theme("blue")
 app = ctk.CTk()
 app.title("Notes App")
 app.geometry("500x500")
-app.resizable(False, False)
 
 def new_note():
     text_area.delete("1.0", "end")
