@@ -10,6 +10,8 @@ ctk.set_default_color_theme("blue")
 current_file_path = None
 app = ctk.CTk()
 app.title("Notes App")
+app.geometry("500x500")
+
 app.geometry("500x300")
 app.resizable(False, False)
 app.attributes('-topmost', True)
